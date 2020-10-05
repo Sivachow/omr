@@ -52,6 +52,7 @@ class TR_RegionAnalysis
 
    static TR_Structure *getRegions(TR::Compilation *);
    static TR_Structure *getRegions(TR::Compilation *, TR::ResolvedMethodSymbol *);
+   static TR_Structure *getRegions2(TR::Compilation *, TR::ResolvedMethodSymbol *);
 
    friend class TR_Debug;
 

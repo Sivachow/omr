@@ -117,7 +117,6 @@ void TR_RegionAnalysis::createLeafStructures(TR::CFG *cfg, TR::Region &region)
    _totalNumberOfNodes = 0;
 
    _infoTable = (StructInfo**) _workingRegion.allocate((cfg->getNumberOfNodes()+1)*sizeof(StructInfo*));
-
    // We need two passes to initialize the array of StructInfo objects
    // because the order of nodes is not necessarily sequential.
    // The first constructs the objects in order and the second initializes them
@@ -166,6 +165,49 @@ void TR_RegionAnalysis::createLeafStructures(TR::CFG *cfg, TR::Region &region)
          si._exceptionSucc.set(index);
          }
       }
+   }
+
+/**
+ * Mainline for performing Region Analysis.
+ */
+TR_Structure *TR_RegionAnalysis::getRegions2(TR::Compilation *comp, TR::ResolvedMethodSymbol* methSym)
+   {
+   TR::StackMemoryRegion stackMemoryRegion(*comp->trMemory());
+
+   TR::CFG *cfg = methSym->getFlowGraph();
+
+   // Calculate dominators
+   // This has the side-effect of renumbering the blocks in depth-first order
+   //
+   TR_Dominators dominators = TR_Dominators(comp, cfg);
+
+   #if DEBUG
+   if (debug("verifyDominator"))
+      {
+      TR_DominatorVerifier verifyDominator(dominators);
+      }
+   #endif
+
+   TR_ASSERT(cfg, "cfg is NULL\n");
+
+   TR_RegionAnalysis ra(comp, dominators, cfg, stackMemoryRegion);
+   ra._trace = comp->getOption(TR_TraceSA);
+
+   ra._useNew = !comp->getOption(TR_DisableIterativeSA);
+   if (ra.trace())
+      {
+      traceMsg(comp, "Blocks before Region Analysis:\n");
+      comp->getDebug()->print(comp->getOutFile(), cfg);
+      }
+
+   ra.createLeafStructures(cfg, stackMemoryRegion);
+
+   // Loop through the node set until there is only one node left - this is the
+   // root of the control tree.
+   //
+   TR_Structure *result = ra.findRegions(stackMemoryRegion);
+
+   return result;
    }
 
 /**

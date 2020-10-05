@@ -129,6 +129,97 @@ TR_Dominators::TR_Dominators(TR::Compilation *c, bool post) :
    _info.clear();
    }
 
+TR_Dominators::TR_Dominators(TR::Compilation *c, TR::CFG* cfg, bool post) :
+   _region(c->trMemory()->heapMemoryRegion()),
+   _compilation(c),
+   _info(cfg->getNextNodeNumber()+1, BBInfo(_region), _region),
+   _dfNumbers(cfg->getNextNodeNumber()+1, 0, _region),
+   _dominators(cfg->getNextNodeNumber()+1, static_cast<TR::Block *>(NULL), _region)
+   {
+   LexicalTimer tlex("TR_Dominators::TR_Dominators", _compilation->phaseTimer());
+
+   _postDominators = post;
+   _isValid = true;
+   _topDfNum = 0;
+   _visitCount = c->incOrResetVisitCount();
+   _trace = comp()->getOption(TR_TraceDominators);
+
+   TR::Block *block;
+
+
+   _cfg = cfg;
+   _numNodes = cfg->getNumberOfNodes()+1;
+
+   if (trace())
+      {
+      traceMsg(comp(), "Starting %sdominator calculation\n", _postDominators ? "post-" : "");
+      traceMsg(comp(), "   Number of nodes is %d\n", _numNodes-1);
+      }
+
+   if (_postDominators)
+      _dfNumbers[cfg->getStart()->getNumber()] = -1;
+   else
+      _dfNumbers[cfg->getEnd()->getNumber()] = -1;
+
+   findDominators(toBlock( _postDominators ? cfg->getEnd() : cfg->getStart() ));
+
+   int32_t i;
+   for (i = _topDfNum; i > 1; i--)
+      {
+      BBInfo &info = getInfo(i);
+      TR::Block *dominated = info._block;
+      TR::Block *dominator = getInfo(info._idom)._block;
+      _dominators[dominated->getNumber()] = dominator;
+      if (trace())
+         traceMsg(comp(), "   %sDominator of block_%d is block_%d\n", _postDominators ? "post-" : "",
+                                      dominated->getNumber(), dominator->getNumber());
+      }
+
+   // The exit block may not be reachable from the entry node. In this case just
+   // give the exit block the highest depth-first numbering.
+   // No other blocks should be unreachable.
+   //
+
+   if (_postDominators)
+      {
+      if (_dfNumbers[cfg->getStart()->getNumber()] < 0)
+         _dfNumbers[cfg->getStart()->getNumber()] = _topDfNum++;
+      }
+   else
+      {
+      if (_dfNumbers[cfg->getEnd()->getNumber()] < 0)
+         _dfNumbers[cfg->getEnd()->getNumber()] = _topDfNum++;
+      }
+
+   // Assert that we've found every node in the cfg.
+   //
+   if (_topDfNum != _numNodes-1)
+      {
+      if (_postDominators)
+         {
+         _isValid = false;
+         if (trace())
+            traceMsg(comp(), "Some blocks are not reachable from exit. Post-dominator info is invalid.\n");
+         return;
+         }
+      else
+         TR_ASSERT(false, "Unreachable block in the CFG %d %d", _topDfNum, _numNodes-1);
+      }
+
+   #if DEBUG
+      for (block = toBlock(cfg->getFirstNode()); block; block = toBlock(block->getNext()))
+         {
+         TR_ASSERT(_dfNumbers[block->getNumber()] >= 0, "Unreachable block in the CFG");
+         }
+   #endif
+
+   if (trace())
+      traceMsg(comp(), "End of %sdominator calculation\n", _postDominators ? "post-" : "");
+
+   // Release no-longer-used data
+   _info.clear();
+   }
+
 TR::Block * TR_Dominators::getDominator(TR::Block *block)
    {
    if (block->getNumber() >= _dominators.size())

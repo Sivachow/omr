@@ -53,6 +53,7 @@ class TR_Dominators
    TR_ALLOC(TR_Memory::Dominators)
 
    TR_Dominators(TR::Compilation *, bool post = false);
+   TR_Dominators(TR::Compilation *, TR::CFG* cfg, bool post = false);
    TR::Block       *getDominator(TR::Block *);
    int             dominates(TR::Block *block, TR::Block *other);
 
