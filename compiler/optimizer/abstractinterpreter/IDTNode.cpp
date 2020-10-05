@@ -142,8 +142,6 @@ TR::IDTNode* TR::IDTNode::getChild(uint32_t index)
 uint32_t TR::IDTNode::getBenefit()
    {
    float benefit = _rootCallRatio  * (1 + _staticBenefit);
-   if (benefit < 0.5)
-      benefit = 0;
 
    return benefit * 10;
    }
