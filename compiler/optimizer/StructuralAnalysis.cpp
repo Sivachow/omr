@@ -170,12 +170,10 @@ void TR_RegionAnalysis::createLeafStructures(TR::CFG *cfg, TR::Region &region)
 /**
  * Mainline for performing Region Analysis.
  */
-TR_Structure *TR_RegionAnalysis::getRegions2(TR::Compilation *comp, TR::ResolvedMethodSymbol* methSym)
+TR_Structure *TR_RegionAnalysis::getRegions(TR::Compilation *comp, TR::CFG* cfg)
    {
    TR::StackMemoryRegion stackMemoryRegion(*comp->trMemory());
-
-   TR::CFG *cfg = methSym->getFlowGraph();
-
+   
    // Calculate dominators
    // This has the side-effect of renumbering the blocks in depth-first order
    //
