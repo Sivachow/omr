@@ -21,34 +21,33 @@
 
 #include "optimizer/abstractinterpreter/AbsValue.hpp"
 
-TR::AbsValue* TR::AbsVPValue::clone(TR::Region& region)
+TR::AbsValue* TR::AbsVPValue::clone(TR::Region& region) const
    {
-   TR::AbsVPValue* copy = new (region) TR::AbsVPValue(_vp, _constraint, _dataType);
-   copy->setParamPosition(_paramPos);
-
-   if (_isImplicitParameter)
-      copy->setImplicitParam();
-   
+   TR::AbsVPValue* copy = new (region) TR::AbsVPValue(_vp, _constraint, _dataType, _paramPos);   
    return copy;
    }
 
-TR::AbsValue* TR::AbsVPValue::merge(TR::AbsValue *other)
+TR::AbsValue* TR::AbsVPValue::merge(const TR::AbsValue *other)
    {
    TR_ASSERT_FATAL(other, "Cannot merge with a NULL AbsValue");
 
-   if (other->getDataType() != _dataType) 
-      return NULL;
+   if (other == NULL)
+      return this;
 
-   if (!_constraint)
+   if (other->getDataType() != _dataType) 
+      {
+      _dataType = TR::NoType;
+      setToTop();
+      return this;
+      }
+
+   if (isTop())
       return this;
 
    if (_paramPos != other->getParamPosition()) 
       _paramPos = -1;
 
-   if (_isImplicitParameter && !other->isImplicitParameter())
-      _isImplicitParameter = false;
-
-   TR::AbsVPValue* otherVPValue = static_cast<TR::AbsVPValue*>(other);
+   const TR::AbsVPValue* otherVPValue = static_cast<const TR::AbsVPValue*>(other);
 
    if (otherVPValue->isTop()) 
       {
@@ -58,8 +57,10 @@ TR::AbsValue* TR::AbsVPValue::merge(TR::AbsValue *other)
 
    TR::VPConstraint *mergedConstraint = _constraint->merge(otherVPValue->getConstraint(), _vp);
 
-   if (mergedConstraint) //mergedConstaint can be VPMergedIntConstraint or VPMergedLongConstraint. Turn them into VPIntRange or VPLongRange to make things easier.
+   if (mergedConstraint) 
       {
+      // mergedConstaint can be VPMergedIntConstraint or VPMergedLongConstraint. 
+      // Turn them into VPIntRange or VPLongRange to make things easier. (i.e there will only two types of Int/Long Constraints, Int(Long) Const and Int(Long) Range).
       if (mergedConstraint->asMergedIntConstraints())
          mergedConstraint = TR::VPIntRange::create(_vp, mergedConstraint->getLowInt(), mergedConstraint->getHighInt());
       else if (mergedConstraint->asMergedLongConstraints())
@@ -70,7 +71,7 @@ TR::AbsValue* TR::AbsVPValue::merge(TR::AbsValue *other)
    return this;
    }
 
-void TR::AbsVPValue::print(TR::Compilation* comp)    
+void TR::AbsVPValue::print(TR::Compilation* comp) const  
    {
    traceMsg(comp, "AbsValue: Type: %s ", TR::DataType::getName(_dataType));
    
@@ -85,8 +86,5 @@ void TR::AbsVPValue::print(TR::Compilation* comp)
       }
 
    traceMsg(comp, " param position: %d", _paramPos);
-
-   if (_isImplicitParameter)
-      traceMsg(comp, " {implicit param} ");
    }
 

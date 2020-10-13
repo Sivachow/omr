@@ -27,8 +27,6 @@
 #include "optimizer/VPConstraint.hpp"
 #include "optimizer/ValuePropagation.hpp"
 
-namespace TR { class AbsVPValue; }
-
 namespace TR {
 
 /**
@@ -39,10 +37,9 @@ namespace TR {
 class AbsValue
    {
    public:
-   AbsValue(TR::DataType dataType) :
+   explicit AbsValue(TR::DataType dataType) :
          _dataType(dataType),
-         _paramPos(-1),
-         _isImplicitParameter(false)
+         _paramPos(-1)
    {}
 
    /**
@@ -51,16 +48,16 @@ class AbsValue
     * @param region The region where the cloned value will be allocated on.
     * @return the cloned abstract value
     */
-   virtual TR::AbsValue* clone(TR::Region& region)=0;
+   virtual TR::AbsValue* clone(TR::Region& region) const =0;
 
    /**
     * @brief Merge with another AbsValue. 
-    * @note This is an in-place merge. Other should have the exactly same dataType as self. 
+    * @note This is an in-place merge.
     *
     * @param other Another AbsValue to be merged with
-    * @return NULL if failing to merge. Self if succeding to merge.
+    * @return Self after the merge
     */
-   virtual TR::AbsValue* merge(TR::AbsValue *other)=0;
+   virtual TR::AbsValue* merge(const TR::AbsValue *other)=0;
 
    /**
     * @brief Check whether the AbsValue is least precise abstract value.
@@ -68,7 +65,7 @@ class AbsValue
     *
     * @return true if it is top. false otherwise
     */
-   virtual bool isTop()=0;
+   virtual bool isTop() const =0;
 
    /**
     * @brief Set to the least precise abstract value.
@@ -78,29 +75,24 @@ class AbsValue
    /**
     * @brief Check if the AbsValue is a parameter.
     *
-    * @return true if it is a pramater. false if not.
+    * @return true if it is a parameter. false if not.
     */
-   bool isParameter() { return _paramPos >= 0; }
+   bool isParameter() const { return _paramPos >= 0; }
 
-   /**
-    * @brief Check if the AbsValue is 'this' (the implicit parameter.)
-    *
-    * @return true if it is the implicit parameter. false otherwise.
-    */   
-   bool isImplicitParameter() { return _paramPos == 0 && _isImplicitParameter; }
-
-   int32_t getParamPosition() { return _paramPos; }
+   int32_t getParamPosition() const { return _paramPos; }
    void setParamPosition(int32_t paramPos) { _paramPos = paramPos; }
 
-   void setImplicitParam() { TR_ASSERT_FATAL(_paramPos == 0, "Cannot set as implicit param"); _isImplicitParameter = true; }
+   TR::DataType getDataType() const { return _dataType; }
 
-   TR::DataType getDataType() { return _dataType; }
-
-   virtual void print(TR::Compilation* comp)=0;
+   virtual void print(TR::Compilation* comp) const = 0;
 
    protected:
 
-   bool _isImplicitParameter;
+   AbsValue(TR::DataType dataType, int32_t paramPos) :
+         _dataType(dataType),
+         _paramPos(paramPos)
+      {}
+
    int32_t _paramPos; 
    TR::DataType _dataType;
    };
@@ -112,21 +104,27 @@ class AbsVPValue : public AbsValue
    {
    public:
    AbsVPValue(TR::ValuePropagation*vp, TR::VPConstraint* constraint, TR::DataType dataType) :
-         TR::AbsValue(dataType),
+         AbsValue(dataType),
          _vp(vp),
          _constraint(constraint)
       {}
 
-   TR::VPConstraint* getConstraint() { return _constraint; }
+   TR::VPConstraint* getConstraint() const { return _constraint; }
 
-   virtual bool isTop() { return _constraint == NULL; }
+   virtual bool isTop() const { return _constraint == NULL; }
    virtual void setToTop() { _constraint = NULL; }
 
-   virtual TR::AbsValue* clone(TR::Region& region);
-   virtual TR::AbsValue* merge(TR::AbsValue* other);
-   virtual void print(TR::Compilation* comp);
+   virtual TR::AbsValue* clone(TR::Region& region) const;
+   virtual TR::AbsValue* merge(const TR::AbsValue* other);
+   virtual void print(TR::Compilation* comp) const;
 
    private:
+   AbsVPValue(TR::ValuePropagation*vp, TR::VPConstraint* constraint, TR::DataType dataType, int32_t paramPos) :
+         AbsValue(dataType, paramPos),
+         _vp(vp),
+         _constraint(constraint)
+      {}
+
    TR::ValuePropagation* _vp;
    TR::VPConstraint* _constraint;
    };
