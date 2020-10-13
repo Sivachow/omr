@@ -60,7 +60,6 @@ class TR_RegionStructure;
 class TR_RegisterCandidate;
 class TR_RegisterCandidates;
 class TR_ResolvedMethod;
-namespace TR { class AbsState; }
 namespace TR { class Block; }
 namespace TR { class CFGEdge; }
 namespace TR { class CFGNode; }
@@ -451,10 +450,6 @@ class OMR_EXTENSIBLE Block : public TR::CFGNode
    bool wasHeaderOfCanonicalizedLoop()                { return _flags.testAny(_wasHeaderOfCanonicalizedLoop); }
    void setWasHeaderOfCanonicalizedLoop(bool b)       { _flags.set(_wasHeaderOfCanonicalizedLoop, b); }
 
-   void setAbsState(TR::AbsState *state)                  { _absState = state; }
-   TR::AbsState* getAbsState()                            { return _absState; }
-
-
 
    bool isSyntheticHandler()                          { return  _catchBlockExtension && _catchBlockExtension->_isSyntheticHandler; }
    void setIsSyntheticHandler();
@@ -573,9 +568,6 @@ class OMR_EXTENSIBLE Block : public TR::CFGNode
 
    flags32_t                             _flags;
    flags32_t                             _moreflags;
-
-   // This is used for abstract interpretation
-   TR::AbsState*                             _absState;
 
    };
 

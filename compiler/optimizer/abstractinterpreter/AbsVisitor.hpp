@@ -33,7 +33,7 @@ namespace TR {
 class AbsVisitor
    {
    public:
-   virtual void visitCallSite(TR_CallSite* callSite, int32_t callerIndex, TR::Block* callBlock, TR::AbsArguments* arguments) {}
+   virtual void visitCallSite(TR_CallSite* callSite, int32_t callerIndex, TR::Block* callBlock, std::vector<TR::AbsValue*>* arguments) {}
    };
 }
 

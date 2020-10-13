@@ -136,7 +136,6 @@ OMR::Block::init(TR::TreeTop *entry, TR::TreeTop *exit)
    _debugCounters = NULL;
    _flags = 0;
    _moreflags = 0;
-   _absState = NULL;
    }
 
 TR::Block*
@@ -157,8 +156,7 @@ OMR::Block::Block(TR::Block &other, TR::TreeTop *entry, TR::TreeTop *exit) :
    _lastInstruction(other._lastInstruction),
    _blockSize(other._blockSize),
    _debugCounters(other._debugCounters),
-   _catchBlockExtension(NULL),
-   _absState(other._absState)
+   _catchBlockExtension(NULL)
    {
    if (entry && entry->getNode()) entry->getNode()->setBlock(self());
    if (exit && exit->getNode())   exit->getNode()->setBlock(self());
