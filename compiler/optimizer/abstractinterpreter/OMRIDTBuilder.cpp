@@ -20,6 +20,8 @@
  *******************************************************************************/
 
 #include "optimizer/abstractinterpreter/IDTBuilder.hpp"
+#include "optimizer/abstractinterpreter/IDT.hpp"
+#include "il/Block.hpp"
 
 OMR::IDTBuilder::IDTBuilder(TR::ResolvedMethodSymbol* symbol, int32_t budget, TR::Region& region, TR::Compilation* comp, TR_InlinerBase* inliner) :
       _rootSymbol(symbol),
