@@ -41,6 +41,10 @@ if(OMR_ARCH_POWER)
 	)
 endif()
 
+list(APPEND COMPCGTEST_FILES
+	abstractinterpreter/AbsInterpreterTest.cpp
+	)
+
 omr_add_executable(compunittest ${COMPCGTEST_FILES})
 
 # For the time being, link against Tril even though we don't really need Tril itself. This is done
