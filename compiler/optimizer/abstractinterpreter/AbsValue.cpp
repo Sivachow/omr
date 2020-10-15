@@ -57,16 +57,6 @@ TR::AbsValue* TR::AbsVPValue::merge(const TR::AbsValue *other)
 
    TR::VPConstraint *mergedConstraint = _constraint->merge(otherVPValue->getConstraint(), _vp);
 
-   if (mergedConstraint) 
-      {
-      // mergedConstaint can be VPMergedIntConstraint or VPMergedLongConstraint. 
-      // Turn them into VPIntRange or VPLongRange to make things easier. (i.e there will only two types of Int/Long Constraints, Int(Long) Const and Int(Long) Range).
-      if (mergedConstraint->asMergedIntConstraints())
-         mergedConstraint = TR::VPIntRange::create(_vp, mergedConstraint->getLowInt(), mergedConstraint->getHighInt());
-      else if (mergedConstraint->asMergedLongConstraints())
-         mergedConstraint = TR::VPLongRange::create(_vp, mergedConstraint->getLowLong(), mergedConstraint->getHighLong());
-      }
-
    _constraint = mergedConstraint;
    return this;
    }

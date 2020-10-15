@@ -36,23 +36,22 @@ class AbsOpStack
    public:
 
    /**
-    * @brief Clone an op stack
+    * @brief Clone an operand stack
     * 
-    * @param region The memory region where the cloned op stack would like to allocated.
-    * @return the op stack cloned.
+    * @param region The memory region where the cloned operand stack should be allocated.
+    * @return the cloned operand stack
     */
    TR::AbsOpStack* clone(TR::Region& region) const;
 
    /**
-    * @brief Merge with another operand stack. This is in-place merge.
+    * @brief Perform an in-place merge another operand stack.
     *
     * @param other the operand stack to be merged with
     */
    void merge(const TR::AbsOpStack* other);
 
    /**
-    * @brief Push an abstract value to the operand stack.
-    * @note the abstract value to be pushed must be non-NULL.
+    * @brief Push an abstract value onto the operand stack.
     *
     * @param value the value to be pushed
     */

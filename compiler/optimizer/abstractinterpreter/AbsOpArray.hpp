@@ -40,17 +40,17 @@ class AbsOpArray
       {}
 
    /**
-    * @brief Clone the op array
+    * @brief Clone the operand array
     * 
-    * @param region The memory region where the cloned local var array should be allocated.
-    * @return the cloned array
+    * @param region The memory region where the cloned operand array should be allocated.
+    * @return the cloned operand array
     */
    TR::AbsOpArray *clone(TR::Region& region) const;
 
    /**
-    * @brief Merge with another abstract op array. This is in-place merge.
+    * @brief Perform an in-place merge with another operand array.
     *
-    * @param other The array to be merged with.
+    * @param other The operand array to be merged with.
     */
    void merge(const TR::AbsOpArray* other);
    
