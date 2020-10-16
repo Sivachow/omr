@@ -81,7 +81,7 @@ TEST_F(AbsVPValueTest, testCloneOperation)
    TR::AbsVPValue value1(vp(), &constraint, TR::Int32);
    TR::AbsVPValue* value2 = static_cast<TR::AbsVPValue*>(value1.clone(region()));
 
-   //the pointer of the cloned value should not be equal to the one being cloned.
+   //the pointer of the cloned value should not be equal to the original
    ASSERT_NE(&value1, value2);
 
    //the cloned value should be identical to the one cloned.
@@ -238,6 +238,9 @@ TEST_F(AbsOpStackTest, testCloneOperation)
 
    TR::AbsOpStack* stack2 = stack1.clone(region());
 
+   //cloned stack should have a different pointer than the original
+   ASSERT_NE(stack2, &stack1);
+
    //clone does not affect stack1
    ASSERT_EQ(3, stack1.size());
    ASSERT_EQ(&value3, stack1.pop());
@@ -328,6 +331,9 @@ TEST_F(AbsOpArrayTest, testCloneOperation) {
    array.set(2, &value3);
 
    TR::AbsOpArray* array2 = array.clone(region());
+
+   //cloned stack should have a different pointer than the original
+   ASSERT_NE(array2, &array);
 
    //the array being cloned should not be affected.
    ASSERT_EQ(3, array.size());
