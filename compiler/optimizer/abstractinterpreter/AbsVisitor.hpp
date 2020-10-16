@@ -23,7 +23,8 @@
 #define ABS_VISITOR_INCL
 
 #include "optimizer/CallInfo.hpp"
-#include "optimizer/abstractinterpreter/AbsState.hpp"
+#include <vector>
+#include "optimizer/abstractinterpreter/AbsValue.hpp"
 
 namespace TR {
 

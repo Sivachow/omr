@@ -79,8 +79,8 @@ class AbsValue
     */
    bool isParameter() const { return _paramPos >= 0; }
 
-   int32_t getParamPosition() const { return _paramPos; }
-   void setParamPosition(int32_t paramPos) { _paramPos = paramPos; }
+   int32_t getParameterPosition() const { return _paramPos; }
+   void setParameterPosition(int32_t paramPos) { _paramPos = paramPos; }
 
    TR::DataType getDataType() const { return _dataType; }
 

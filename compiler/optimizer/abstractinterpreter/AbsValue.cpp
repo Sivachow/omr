@@ -29,8 +29,6 @@ TR::AbsValue* TR::AbsVPValue::clone(TR::Region& region) const
 
 TR::AbsValue* TR::AbsVPValue::merge(const TR::AbsValue *other)
    {
-   TR_ASSERT_FATAL(other, "Cannot merge with a NULL AbsValue");
-
    if (other == NULL)
       return this;
 
@@ -44,7 +42,7 @@ TR::AbsValue* TR::AbsVPValue::merge(const TR::AbsValue *other)
    if (isTop())
       return this;
 
-   if (_paramPos != other->getParamPosition()) 
+   if (_paramPos != other->getParameterPosition()) 
       _paramPos = -1;
 
    const TR::AbsVPValue* otherVPValue = static_cast<const TR::AbsVPValue*>(other);
