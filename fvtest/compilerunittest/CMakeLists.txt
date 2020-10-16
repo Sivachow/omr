@@ -43,7 +43,7 @@ endif()
 
 list(APPEND COMPCGTEST_FILES
 	abstractinterpreter/AbsInterpreterTest.cpp
-	)
+)
 
 omr_add_executable(compunittest ${COMPCGTEST_FILES})
 

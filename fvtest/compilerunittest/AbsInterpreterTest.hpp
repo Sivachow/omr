@@ -24,61 +24,64 @@
 
 #include <gtest/gtest.h>
 #include <exception>
-#include "../CodeGenTest.hpp"
-#include "env/SystemSegmentProvider.hpp"
-#include "env/Region.hpp"
-#include "compile/Compilation.hpp"
-#include "compile/Compilation_inlines.hpp"
+#include "CompilerUnitTest.hpp"
+#include "optimizer/abstractinterpreter/AbsValue.hpp"
 #include "optimizer/GlobalValuePropagation.hpp"
-
-
+#include "infra/Cfg.hpp"
 
 namespace TRTest {
 
-
-class AbsInterpreterTest : public ::testing::Test
+class AbsInterpreterTest : public TRTest::CompilerUnitTest
    {
    public:
    AbsInterpreterTest() :
-      _jitInit(),
-      _rawAllocator(),
-      _segmentProvider(1 << 16, _rawAllocator),
-      _dispatchRegion(_segmentProvider, _rawAllocator),
-      _trMemory(*OMR::FrontEnd::singleton().persistentMemory(), _dispatchRegion),
-      _types(),
-      _options(),
-      _ilGenRequest(),
-      _method("compunittest", "0", "test", 0, NULL, _types.NoType, NULL, NULL),
-      _comp(0, NULL, &OMR::FrontEnd::singleton(), &_method, _ilGenRequest, _options, _dispatchRegion, &_trMemory, TR_OptimizationPlan::alloc(warm)),
-      _optimizer(&_comp, NULL, false),
-      _manager(&_optimizer, TR::GlobalValuePropagation::create, OMR::globalValuePropagation),
-      _vp(&_manager)
-      {}
+         CompilerUnitTest()
+      {
+      _manager = new (_comp.allocator()) TR::OptimizationManager(_optimizer, TR::GlobalValuePropagation::create, OMR::globalValuePropagation);
+      _vp = static_cast<TR::GlobalValuePropagation*>(TR::GlobalValuePropagation::create(_manager));
+      _vp->initialize();
+      }
 
-
-   TR::ValuePropagation* vp() { return &_vp; }
-   TR::Region& region() { return _dispatchRegion; }
+   TR::ValuePropagation* vp() { return _vp; }
 
    private:
-   JitInitializer _jitInit;
+   TR::OptimizationManager* _manager;
+   TR::GlobalValuePropagation* _vp;
+   };
 
-   TR::RawAllocator _rawAllocator;
-   TR::SystemSegmentProvider _segmentProvider;
-   TR::Region _dispatchRegion;
-   TR_Memory _trMemory;
+class AbsTestValue : public TR::AbsValue
+   {
+   public:
+   AbsTestValue(TR::DataType dataType) :
+         TR::AbsValue(dataType),
+         _isTop(false)
+   {}
 
-   TR::TypeDictionary _types;
+   virtual TR::AbsValue* clone(TR::Region& region) const
+      {
+      TRTest::AbsTestValue* copy = new (region) TRTest::AbsTestValue(_dataType, _paramPos, _isTop);
+      return copy;
+      } 
 
-   TR::Options _options;
-   NullIlGenRequest _ilGenRequest;
-   TR::ResolvedMethod _method;
-   TR::Compilation _comp;
+   virtual bool isTop() const { return _isTop; }
 
-   TR::Optimizer _optimizer;
-   TR::OptimizationManager _manager;
+   virtual void setToTop() { _isTop = true; }
 
-   TR::GlobalValuePropagation _vp;
+   virtual TR::AbsValue* merge(const TR::AbsValue *other) { return this; }
+
+   virtual void print(TR::Compilation* comp) const {} 
+
+   private:
+
+   AbsTestValue(TR::DataType dataType, int32_t paramPos, bool isTop) :
+         TR::AbsValue(dataType, paramPos),
+         _isTop(isTop)
+   {}
+
+   bool _isTop;
 
    };
 }
+
+
 #endif
