@@ -86,7 +86,6 @@ class CompilerUnitTest : public ::testing::Test
          _segmentProvider(1 << 16, _rawAllocator),
          _dispatchRegion(_segmentProvider, _rawAllocator),
          _trMemory(*OMR::FrontEnd::singleton().persistentMemory(), _dispatchRegion),
-         _stackMemory(&_trMemory),
          _types(),
          _options(),
          _ilGenRequest(),
@@ -105,23 +104,17 @@ class CompilerUnitTest : public ::testing::Test
 
    protected:
    JitInitializer _jitInit;
-
    TR::RawAllocator _rawAllocator;
    TR::SystemSegmentProvider _segmentProvider;
    TR::Region _dispatchRegion;
    TR_Memory _trMemory;
-
-   TR_StackMemory _stackMemory;
-
    TR::TypeDictionary _types;
-
    TR::Options _options;
    NullIlGenRequest _ilGenRequest;
    TR::ResolvedMethodSymbol* _symbol;
    TR::Node *fakeNode;
    TR::ResolvedMethod _method;
    TR::Compilation _comp;
-
    TR::Optimizer* _optimizer;
    };
 
@@ -151,7 +144,6 @@ class MakeVector
       return _vals;
       }
    };
-
 
 }
 #endif

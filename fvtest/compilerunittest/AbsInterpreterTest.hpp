@@ -19,15 +19,14 @@
  * SPDX-License-Identifier: EPL-2.0 OR Apache-2.0 OR GPL-2.0 WITH Classpath-exception-2.0 OR LicenseRef-GPL-2.0 WITH Assembly-exception
  *******************************************************************************/
 
-#ifndef ABS_INTERPRETER_HPP
-#define ABS_INTERPRETER_HPP
+#ifndef ABS_INTERPRETER_TEST_HPP
+#define ABS_INTERPRETER_TEST_HPP
 
 #include <gtest/gtest.h>
 #include <exception>
 #include "CompilerUnitTest.hpp"
 #include "optimizer/abstractinterpreter/AbsValue.hpp"
 #include "optimizer/GlobalValuePropagation.hpp"
-#include "infra/Cfg.hpp"
 
 namespace TRTest {
 

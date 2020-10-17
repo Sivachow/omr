@@ -381,4 +381,3 @@ TEST_F(AbsOpArrayTest, testMergeOperation)
    ASSERT_EQ(&value5, array2.at(1));
    ASSERT_EQ(&value6, array2.at(2));
    }
-
