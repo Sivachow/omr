@@ -23,7 +23,8 @@
 
 uint32_t TR::InliningMethodSummary::testArgument(TR::AbsValue* arg, uint32_t argPos)
    {
-   TR_ASSERT_FATAL(arg, "Arg cannot be NULL");
+   if (!arg)
+      return 0;
 
    if (arg->isTop())
       return 0;
@@ -108,7 +109,7 @@ bool TR::PotentialOptimizationVPPredicate::holdPartialOrderRelation(TR::VPConstr
    {
    if (testConstraint->asIntConstraint()) //partial relation for int constraint
       {
-      if (valueConstraint->asIntConstraint() && testConstraint->getLowInt() <= valueConstraint->getLowInt() && testConstraint->getHighInt() >= valueConstraint->getHighInt()) 
+      if (testConstraint->getLowInt() <= valueConstraint->getLowInt() && testConstraint->getHighInt() >= valueConstraint->getHighInt()) 
          return true;
       else 
          return false;
@@ -124,7 +125,7 @@ bool TR::PotentialOptimizationVPPredicate::holdPartialOrderRelation(TR::VPConstr
       }
    else if (testConstraint->asClassType()) //partial relation for class types
       {
-      if (valueConstraint->isNullObject() && valueConstraint->asClass() && valueConstraint->getClass())
+      if (valueConstraint->isNonNullObject() && valueConstraint->getClass())
          {
          TR_YesNoMaybe yesNoMaybe = _vp->fe()->isInstanceOf(valueConstraint->getClass(), testConstraint->getClass(), valueConstraint->isFixedClass(), true);
 
