@@ -178,6 +178,9 @@ TR_Structure *TR_RegionAnalysis::getRegions(TR::Compilation *comp, TR::CFG* cfg)
    // This has the side-effect of renumbering the blocks in depth-first order
    //
    TR_Dominators dominators = TR_Dominators(comp, cfg);
+   
+   if (!dominators.isValid())
+      return NULL;
 
    #if DEBUG
    if (debug("verifyDominator"))
@@ -385,7 +388,6 @@ TR_RegionStructure *TR_RegionAnalysis::findNaturalLoop(StructInfo &node,
    regionNodes.set(node._nodeIndex);
    nodesInPath.empty();
    bool cyclesFound = false;
-
    int32_t numBackEdges = 0;
 
    TR_BitVectorIterator cursor(node._pred);
@@ -396,7 +398,6 @@ TR_RegionStructure *TR_RegionAnalysis::findNaturalLoop(StructInfo &node,
          {
          // A back-edge has been found. Add its loop nodes to the region
          //
-
          if (_useNew)
             {
 	         addNaturalLoopNodesIterativeVersion(backEdgeNode, regionNodes, nodesInPath, cyclesFound, node._originalBlock);
@@ -412,7 +413,7 @@ TR_RegionStructure *TR_RegionAnalysis::findNaturalLoop(StructInfo &node,
 
    if (numBackEdges == 0)
       return NULL;
-
+   
    TR_RegionStructure *region = new (_structureRegion) TR_RegionStructure(_compilation, node._structure->getNumber() /* node._nodeIndex */);
    if (cyclesFound)
       {

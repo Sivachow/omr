@@ -195,15 +195,8 @@ TR_Dominators::TR_Dominators(TR::Compilation *c, TR::CFG* cfg, bool post) :
    //
    if (_topDfNum != _numNodes-1)
       {
-      if (_postDominators)
-         {
-         _isValid = false;
-         if (trace())
-            traceMsg(comp(), "Some blocks are not reachable from exit. Post-dominator info is invalid.\n");
-         return;
-         }
-      else
-         TR_ASSERT(false, "Unreachable block in the CFG %d %d", _topDfNum, _numNodes-1);
+      _isValid = false;
+      return;
       }
 
    #if DEBUG

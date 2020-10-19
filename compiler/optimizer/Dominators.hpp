@@ -59,6 +59,7 @@ class TR_Dominators
 
    TR::Compilation * comp()         { return _compilation; }
    bool trace() { return _trace; }
+   bool isValid() { return _isValid; }
 
    protected:
 

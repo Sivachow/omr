@@ -30,7 +30,7 @@
  * Steps of BenefitInliner:
  * 
  * 
- 1. perform() --> 2. build IDT -->  3. abstract interpretation  -->  5. run inliner packing (nested knapsack) --> 6. perform inlining
+ *1. perform() --> 2. build IDT -->  3. abstract interpretation  -->  5. run inliner packing (nested knapsack) --> 6. perform inlining
  *                  |                                                |
  *                  |--  4. update IDT with inlining summaries --    | 
  *
