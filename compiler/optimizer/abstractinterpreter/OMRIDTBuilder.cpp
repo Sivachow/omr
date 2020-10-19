@@ -93,7 +93,7 @@ TR::IDT* OMR::IDTBuilder::buildIDT()
    return _idt;
    }
 
-void OMR::IDTBuilder::buildIDT2(TR::IDTNode* node, std::vector<TR::AbsValue*>* arguments, int32_t callerIndex, int32_t budget, TR_CallStack* callStack)
+void OMR::IDTBuilder::buildIDT2(TR::IDTNode* node, TR::vector<TR::AbsValue*, TR::Region&>* arguments, int32_t callerIndex, int32_t budget, TR_CallStack* callStack)
    {
    TR::ResolvedMethodSymbol* symbol = node->getResolvedMethodSymbol();
    TR_ResolvedMethod* method = node->getResolvedMethod();
@@ -137,7 +137,7 @@ void OMR::IDTBuilder::buildIDT2(TR::IDTNode* node, std::vector<TR::AbsValue*>* a
       }
    }
 
-void OMR::IDTBuilder::addNodesToIDT(TR::IDTNode*parent, int32_t callerIndex, TR_CallSite* callSite, float callRatio, std::vector<TR::AbsValue*>* arguments, TR_CallStack* callStack)
+void OMR::IDTBuilder::addNodesToIDT(TR::IDTNode*parent, int32_t callerIndex, TR_CallSite* callSite, float callRatio, TR::vector<TR::AbsValue*, TR::Region&>* arguments, TR_CallStack* callStack)
    {
    bool traceBIIDTGen = comp()->getOption(TR_TraceBIIDTGen);
 
@@ -244,7 +244,7 @@ void OMR::IDTBuilder::storeInterpretedMethod(TR_ResolvedMethod* method, TR::IDTN
    _interpretedMethodMap.insert(std::pair<TR_OpaqueMethodBlock *, TR::IDTNode *>(persistentIdentifier, node));
    }
 
-uint32_t OMR::IDTBuilder::computeStaticBenefit(TR::InliningMethodSummary* summary, std::vector<TR::AbsValue*>* arguments)
+uint32_t OMR::IDTBuilder::computeStaticBenefit(TR::InliningMethodSummary* summary, TR::vector<TR::AbsValue*, TR::Region&>* arguments)
    {
    if (summary == NULL || arguments == NULL)
       return 0;
@@ -260,7 +260,7 @@ uint32_t OMR::IDTBuilder::computeStaticBenefit(TR::InliningMethodSummary* summar
    return staticBenefit;
    }
 
-void TR::IDTBuilderVisitor::visitCallSite(TR_CallSite* callSite, int32_t callerIndex, TR::Block* callBlock, std::vector<TR::AbsValue*>* arguments)
+void TR::IDTBuilderVisitor::visitCallSite(TR_CallSite* callSite, int32_t callerIndex, TR::Block* callBlock, TR::vector<TR::AbsValue*, TR::Region&>* arguments)
    {
    if (callBlock->getFrequency() < 6 || callBlock->isCold() || callBlock->isSuperCold())
       return;

@@ -23,7 +23,7 @@
 #define ABS_VISITOR_INCL
 
 #include "optimizer/CallInfo.hpp"
-#include <vector>
+#include "infra/vector.hpp"
 #include "optimizer/abstractinterpreter/AbsValue.hpp"
 
 namespace TR {
@@ -34,7 +34,7 @@ namespace TR {
 class AbsVisitor
    {
    public:
-   virtual void visitCallSite(TR_CallSite* callSite, int32_t callerIndex, TR::Block* callBlock, std::vector<TR::AbsValue*>* arguments) {}
+   virtual void visitCallSite(TR_CallSite* callSite, int32_t callerIndex, TR::Block* callBlock, TR::vector<TR::AbsValue*, TR::Region&>* arguments) {}
    };
 }
 

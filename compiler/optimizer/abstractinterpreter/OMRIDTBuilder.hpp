@@ -38,6 +38,7 @@ namespace OMR { typedef OMR::IDTBuilder IDTBuilderConnector; }
 #include "optimizer/abstractinterpreter/AbsVisitor.hpp"
 #include "optimizer/abstractinterpreter/IDT.hpp"
 #include "optimizer/abstractinterpreter/IDTNode.hpp"
+#include "infra/vector.hpp"
 
 namespace TR { class IDTBuilder; }
 namespace TR { class IDTBuilderVisitor; }
@@ -93,7 +94,7 @@ class IDTBuilder
     * @param arguments the arguments are the AbsValues passed from the caller method.
     * @param callerIndex the caller index
     */
-   void performAbstractInterpretation(TR::IDTNode* node, TR::IDTBuilderVisitor& visitor, std::vector<TR::AbsValue*>* arguments, int32_t callerIndex) { TR_UNIMPLEMENTED(); }
+   void performAbstractInterpretation(TR::IDTNode* node, TR::IDTBuilderVisitor& visitor, TR::vector<TR::AbsValue*, TR::Region&>* arguments, int32_t callerIndex) { TR_UNIMPLEMENTED(); }
 
    /**
     * @param node the node to build a sub IDT for
@@ -102,7 +103,7 @@ class IDTBuilder
     * @param budget the budget for the sub IDT
     * @param callStack the call stack
     */
-   void buildIDT2(TR::IDTNode* node, std::vector<TR::AbsValue*>* arguments, int32_t callerIndex, int32_t budget, TR_CallStack* callStack);
+   void buildIDT2(TR::IDTNode* node, TR::vector<TR::AbsValue*, TR::Region&>* arguments, int32_t callerIndex, int32_t budget, TR_CallStack* callStack);
    
    /**
     * @brief add IDTNode(s) to the IDT
@@ -116,12 +117,12 @@ class IDTBuilder
     * 
     * @return void
     */
-   void addNodesToIDT(TR::IDTNode* parent, int32_t callerIndex, TR_CallSite* callSite, float callRatio, std::vector<TR::AbsValue*>* arguments, TR_CallStack* callStack);
+   void addNodesToIDT(TR::IDTNode* parent, int32_t callerIndex, TR_CallSite* callSite, float callRatio, TR::vector<TR::AbsValue*, TR::Region&>* arguments, TR_CallStack* callStack);
 
    TR::IDTNode* checkIfMethodIsInterpreted(TR_ResolvedMethod* method);
    void storeInterpretedMethod(TR_ResolvedMethod* method, TR::IDTNode* node);
    
-   uint32_t computeStaticBenefit(TR::InliningMethodSummary* summary, std::vector<TR::AbsValue*>* arguments);
+   uint32_t computeStaticBenefit(TR::InliningMethodSummary* summary, TR::vector<TR::AbsValue*, TR::Region&>* arguments);
    
    TR::IDT* _idt;
    TR::ResolvedMethodSymbol* _rootSymbol;
@@ -148,7 +149,7 @@ class IDTBuilderVisitor : public TR::AbsVisitor
          _callStack(callStack)
       {}
       
-   virtual void visitCallSite(TR_CallSite* callSite, int32_t callerIndex, TR::Block* callBlock, std::vector<TR::AbsValue*>* arguments);
+   virtual void visitCallSite(TR_CallSite* callSite, int32_t callerIndex, TR::Block* callBlock, TR::vector<TR::AbsValue*, TR::Region&>* arguments);
 
    private:
    TR::IDTBuilder* _idtBuilder;
