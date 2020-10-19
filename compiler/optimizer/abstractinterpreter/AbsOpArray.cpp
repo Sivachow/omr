@@ -23,7 +23,7 @@
 
 TR::AbsOpArray* TR::AbsOpArray::clone(TR::Region& region) const
    {
-   TR::AbsOpArray* copy = new (region) TR::AbsOpArray(_container.size());
+   TR::AbsOpArray* copy = new (region) TR::AbsOpArray(_container.size(), region);
    for (size_t i = 0; i < _container.size(); i ++)
       {
       copy->_container[i] = _container[i] ? _container[i]->clone(region) : NULL;

@@ -24,7 +24,7 @@
 
 #include "env/Region.hpp"
 #include "optimizer/abstractinterpreter/AbsValue.hpp"
-#include <vector>
+#include "infra/vector.hpp"
 
 namespace TR {
 
@@ -35,8 +35,8 @@ class AbsOpArray
    {
    public:
 
-   AbsOpArray(uint32_t maxArraySize) :
-         _container(maxArraySize, NULL)
+   AbsOpArray(uint32_t maxArraySize, TR::Region& region) :
+         _container(maxArraySize, NULL, region)
       {}
 
    /**
@@ -74,7 +74,7 @@ class AbsOpArray
    void print(TR::Compilation* comp) const;
 
    private:
-   std::vector<TR::AbsValue*> _container;
+   TR::vector<TR::AbsValue*, TR::Region&> _container;
    };
 
 }

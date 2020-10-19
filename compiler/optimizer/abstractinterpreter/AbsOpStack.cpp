@@ -23,7 +23,7 @@
 
 TR::AbsOpStack* TR::AbsOpStack::clone(TR::Region &region) const
    {
-   TR::AbsOpStack* copy = new (region) TR::AbsOpStack();
+   TR::AbsOpStack* copy = new (region) TR::AbsOpStack(region);
    for (size_t i = 0; i < _container.size(); i ++)
       {
       copy->_container.push_back(_container[i] ? _container[i]->clone(region) : NULL);

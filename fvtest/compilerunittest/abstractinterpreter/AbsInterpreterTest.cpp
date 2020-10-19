@@ -172,7 +172,7 @@ TEST_F(AbsVPValueTest, testMergeOperation)
 class AbsOpStackTest : public TRTest::AbsInterpreterTest {};
 TEST_F(AbsOpStackTest, testSizeAndEmpty)
    {
-   TR::AbsOpStack stack;
+   TR::AbsOpStack stack(region());
    ASSERT_EQ(0, stack.size());
    ASSERT_TRUE(stack.empty());
    
@@ -207,7 +207,7 @@ TEST_F(AbsOpStackTest, testSizeAndEmpty)
 
 TEST_F(AbsOpStackTest, testPushPopAndPeek)
    {
-   TR::AbsOpStack stack;
+   TR::AbsOpStack stack(region());
 
    TRTest::AbsTestValue value1(TR::Int32);
    TRTest::AbsTestValue value2(TR::Int32);
@@ -226,7 +226,7 @@ TEST_F(AbsOpStackTest, testPushPopAndPeek)
 
 TEST_F(AbsOpStackTest, testCloneOperation)
    {
-   TR::AbsOpStack stack1;
+   TR::AbsOpStack stack1(region());
 
    TRTest::AbsTestValue value1(TR::Int32);
    TRTest::AbsTestValue value2(TR::Int32);
@@ -262,7 +262,7 @@ TEST_F(AbsOpStackTest, testCloneOperation)
 
 TEST_F(AbsOpStackTest, testMergeOperation)
    {
-   TR::AbsOpStack stack1;
+   TR::AbsOpStack stack1(region());
 
    TRTest::AbsTestValue value1(TR::Int32);
    TRTest::AbsTestValue value2(TR::Int32);
@@ -272,7 +272,7 @@ TEST_F(AbsOpStackTest, testMergeOperation)
    stack1.push(&value2);
    stack1.push(&value3);
    
-   TR::AbsOpStack stack2;
+   TR::AbsOpStack stack2(region());
 
    stack2.push(&value1);
    stack2.push(&value2);
@@ -295,16 +295,16 @@ class AbsOpArrayTest : public TRTest::AbsInterpreterTest {};
 
 TEST_F(AbsOpArrayTest, testSize) 
    {
-   TR::AbsOpArray array(3);
+   TR::AbsOpArray array(3, region());
    ASSERT_EQ(3, array.size());
 
-   TR::AbsOpArray array2(5);
+   TR::AbsOpArray array2(5, region());
    ASSERT_EQ(5, array2.size());
    }
 
 TEST_F(AbsOpArrayTest, testSetAndAt) 
    {
-   TR::AbsOpArray array(3);
+   TR::AbsOpArray array(3, region());
 
    TRTest::AbsTestValue value1(TR::Int32);
    TRTest::AbsTestValue value2(TR::Int32);
@@ -320,7 +320,7 @@ TEST_F(AbsOpArrayTest, testSetAndAt)
 
 
 TEST_F(AbsOpArrayTest, testCloneOperation) {
-   TR::AbsOpArray array(3);
+   TR::AbsOpArray array(3, region());
 
    TRTest::AbsTestValue value1(TR::Int32);
    TRTest::AbsTestValue value2(TR::Int32);
@@ -350,7 +350,7 @@ TEST_F(AbsOpArrayTest, testCloneOperation) {
 
 TEST_F(AbsOpArrayTest, testMergeOperation) 
    {
-   TR::AbsOpArray array(3);
+   TR::AbsOpArray array(3, region());
 
    TRTest::AbsTestValue value1(TR::Int32);
    TRTest::AbsTestValue value2(TR::Int32);
@@ -360,7 +360,7 @@ TEST_F(AbsOpArrayTest, testMergeOperation)
    array.set(1, &value2);
    array.set(2, &value3);
 
-   TR::AbsOpArray array2(3);
+   TR::AbsOpArray array2(3, region());
 
    TRTest::AbsTestValue value4(TR::Int32);
    TRTest::AbsTestValue value5(TR::Int32);

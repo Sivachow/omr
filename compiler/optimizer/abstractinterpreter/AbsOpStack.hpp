@@ -23,7 +23,7 @@
 #define ABS_OP_STACK_INCL
 
 #include "env/Region.hpp"
-#include <vector>
+#include "infra/vector.hpp"
 #include "optimizer/abstractinterpreter/AbsValue.hpp"
 
 namespace TR {
@@ -34,7 +34,10 @@ namespace TR {
 class AbsOpStack
    {
    public:
-
+   AbsOpStack(TR::Region& region) :
+         _container(region)
+      {}
+      
    /**
     * @brief Clone an operand stack
     * 
@@ -79,7 +82,7 @@ class AbsOpStack
    void print(TR::Compilation* comp) const;
 
    private:
-   std::vector<TR::AbsValue*> _container; 
+   TR::vector<TR::AbsValue*, TR::Region&> _container; 
    };
 
 }
