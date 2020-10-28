@@ -396,8 +396,8 @@
    TR::TreeEvaluator::iselectEvaluator,                 // TR::bselect
    TR::TreeEvaluator::iselectEvaluator,                 // TR::sselect
    TR::TreeEvaluator::iselectEvaluator,                 // TR::aselect
-   TR::TreeEvaluator::iselectEvaluator,                 // TR::fselect
-   TR::TreeEvaluator::iselectEvaluator,                 // TR::dselect
+   TR::TreeEvaluator::fselectEvaluator,                 // TR::fselect
+   TR::TreeEvaluator::fselectEvaluator,                 // TR::dselect
    TR::TreeEvaluator::treetopEvaluator,                 // TR::treetop
    TR::TreeEvaluator::badILOpEvaluator,                    // TR::MethodEnterHook (J9)
    TR::TreeEvaluator::badILOpEvaluator,                    // TR::MethodExitHook (J9)
@@ -736,7 +736,9 @@
    TR::TreeEvaluator::longNumberOfLeadingZeros,         // TR::lnolz (J9)
    TR::TreeEvaluator::longNumberOfTrailingZeros,        // TR::lnotz (J9)
    TR::TreeEvaluator::longBitCount,                     // TR::lpopcnt (J9)
+   TR::TreeEvaluator::sbyteswapEvaluator,               // TR::sbyteswap
    TR::TreeEvaluator::ibyteswapEvaluator,               // TR::ibyteswap
+   TR::TreeEvaluator::lbyteswapEvaluator,               // TR::lbyteswap
    TR::TreeEvaluator::unImpOpEvaluator,                 // TR::bbitpermute
    TR::TreeEvaluator::unImpOpEvaluator,                 // TR::sbitpermute
    TR::TreeEvaluator::unImpOpEvaluator,                 // TR::ibitpermute

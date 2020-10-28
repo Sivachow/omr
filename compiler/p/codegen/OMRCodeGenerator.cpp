@@ -209,6 +209,7 @@ OMR::Power::CodeGenerator::CodeGenerator() :
     self()->setSupportsPrimitiveArrayCopy();
     self()->setSupportsReferenceArrayCopy();
     self()->setSupportsSelect();
+    self()->setSupportsByteswap();
 
     // disabled for now
     //
@@ -509,26 +510,21 @@ OMR::Power::CodeGenerator::mulDecompositionCostIsJustified(
    switch (self()->comp()->target().cpu.getProcessorDescription().processor)
       {
       case OMR_PROCESSOR_PPC_PWR630: // 2S+1M FXU out-of-order
-         TR_ASSERT_FATAL(self()->comp()->target().cpu.id() == TR_PPCpwr630, "TR_PPCpwr630");
          return (numOfOperations<=4);
 
       case OMR_PROCESSOR_PPC_NSTAR:
       case OMR_PROCESSOR_PPC_PULSAR: // 1S+1M FXU in-order
-         TR_ASSERT_FATAL(self()->comp()->target().cpu.id() == TR_PPCnstar || self()->comp()->target().cpu.id() == TR_PPCpulsar, "TR_PPCnstar, TR_PPCpulsar");
          return (numOfOperations<=8);
 
       case OMR_PROCESSOR_PPC_GPUL:
       case OMR_PROCESSOR_PPC_GP:
       case OMR_PROCESSOR_PPC_GR:    // 2 FXU out-of-order back-to-back 2 cycles. Mul is only 4 to 6 cycles
-         TR_ASSERT_FATAL(self()->comp()->target().cpu.id() == TR_PPCgpul || self()->comp()->target().cpu.id() == TR_PPCgp || self()->comp()->target().cpu.id() == TR_PPCgr, "TR_PPCgpul, TR_PPCgp, TR_PPCgr");
          return (numOfOperations<=2);
 
       case OMR_PROCESSOR_PPC_P6:    // Mul is on FPU for 17cycles blocking other operations
-         TR_ASSERT_FATAL(self()->comp()->target().cpu.id() == TR_PPCp6, "TR_PPCp6");
          return (numOfOperations<=16);
 
       case OMR_PROCESSOR_PPC_P7:    // Mul blocks other operations for up to 4 cycles
-         TR_ASSERT_FATAL(self()->comp()->target().cpu.id() == TR_PPCp7, "TR_PPCp7");
          return (numOfOperations<=3);
 
       default:          // assume a generic design similar to 604
@@ -1721,11 +1717,9 @@ TR::Instruction *OMR::Power::CodeGenerator::generateDebugCounterBump(TR::Instruc
    TR::Register *counterReg = self()->allocateRegister();
 
    cursor = loadAddressConstant(self(), self()->comp()->compileRelocatableCode(), node, addr, addrReg, cursor);
-   cursor = generateTrg1MemInstruction(self(), TR::InstOpCode::lwz, node, counterReg,
-                                       new (self()->trHeapMemory()) TR::MemoryReference(addrReg, 0, 4, self()), cursor);
+   cursor = generateTrg1MemInstruction(self(), TR::InstOpCode::lwz, node, counterReg, TR::MemoryReference::createWithDisplacement(self(), addrReg, 0, 4), cursor);
    cursor = generateTrg1Src1ImmInstruction(self(), TR::InstOpCode::addi, node, counterReg, counterReg, delta, cursor);
-   cursor = generateMemSrc1Instruction(self(), TR::InstOpCode::stw, node,
-                                       new (self()->trHeapMemory()) TR::MemoryReference(addrReg, 0, 4, self()), counterReg, cursor);
+   cursor = generateMemSrc1Instruction(self(), TR::InstOpCode::stw, node, TR::MemoryReference::createWithDisplacement(self(), addrReg, 0, 4), counterReg, cursor);
    if (cond)
       {
       uint32_t preCondCursor = cond->getAddCursorForPre();
@@ -1751,11 +1745,9 @@ TR::Instruction *OMR::Power::CodeGenerator::generateDebugCounterBump(TR::Instruc
    TR::Register *counterReg = self()->allocateRegister();
 
    cursor = loadAddressConstant(self(), self()->comp()->compileRelocatableCode(), node, addr, addrReg, cursor);
-   cursor = generateTrg1MemInstruction(self(), TR::InstOpCode::lwz, node, counterReg,
-                                       new (self()->trHeapMemory()) TR::MemoryReference(addrReg, 0, 4, self()), cursor);
+   cursor = generateTrg1MemInstruction(self(), TR::InstOpCode::lwz, node, counterReg, TR::MemoryReference::createWithDisplacement(self(), addrReg, 0, 4), cursor);
    cursor = generateTrg1Src2Instruction(self(), TR::InstOpCode::add, node, counterReg, counterReg, deltaReg, cursor);
-   cursor = generateMemSrc1Instruction(self(), TR::InstOpCode::stw, node,
-                                       new (self()->trHeapMemory()) TR::MemoryReference(addrReg, 0, 4, self()), counterReg, cursor);
+   cursor = generateMemSrc1Instruction(self(), TR::InstOpCode::stw, node, TR::MemoryReference::createWithDisplacement(self(), addrReg, 0, 4), counterReg, cursor);
    if (cond)
       {
       uint32_t preCondCursor = cond->getAddCursorForPre();
@@ -1791,11 +1783,9 @@ TR::Instruction *OMR::Power::CodeGenerator::generateDebugCounterBump(TR::Instruc
    TR::Register *counterReg = srm.findOrCreateScratchRegister();
 
    cursor = loadAddressConstant(self(), self()->comp()->compileRelocatableCode(), node, addr, addrReg, cursor);
-   cursor = generateTrg1MemInstruction(self(), TR::InstOpCode::lwz, node, counterReg,
-                                       new (self()->trHeapMemory()) TR::MemoryReference(addrReg, 0, 4, self()), cursor);
+   cursor = generateTrg1MemInstruction(self(), TR::InstOpCode::lwz, node, counterReg, TR::MemoryReference::createWithDisplacement(self(), addrReg, 0, 4), cursor);
    cursor = generateTrg1Src1ImmInstruction(self(), TR::InstOpCode::addi, node, counterReg, counterReg, delta, cursor);
-   cursor = generateMemSrc1Instruction(self(), TR::InstOpCode::stw, node,
-                                       new (self()->trHeapMemory()) TR::MemoryReference(addrReg, 0, 4, self()), counterReg, cursor);
+   cursor = generateMemSrc1Instruction(self(), TR::InstOpCode::stw, node, TR::MemoryReference::createWithDisplacement(self(), addrReg, 0, 4), counterReg, cursor);
    srm.reclaimScratchRegister(addrReg);
    srm.reclaimScratchRegister(counterReg);
    return cursor;
@@ -1812,11 +1802,9 @@ TR::Instruction *OMR::Power::CodeGenerator::generateDebugCounterBump(TR::Instruc
    TR::Register *counterReg = srm.findOrCreateScratchRegister();
 
    cursor = loadAddressConstant(self(), self()->comp()->compileRelocatableCode(), node, addr, addrReg, cursor);
-   cursor = generateTrg1MemInstruction(self(), TR::InstOpCode::lwz, node, counterReg,
-                                       new (self()->trHeapMemory()) TR::MemoryReference(addrReg, 0, 4, self()), cursor);
+   cursor = generateTrg1MemInstruction(self(), TR::InstOpCode::lwz, node, counterReg, TR::MemoryReference::createWithDisplacement(self(), addrReg, 0, 4), cursor);
    cursor = generateTrg1Src2Instruction(self(), TR::InstOpCode::add, node, counterReg, counterReg, deltaReg, cursor);
-   cursor = generateMemSrc1Instruction(self(), TR::InstOpCode::stw, node,
-                                       new (self()->trHeapMemory()) TR::MemoryReference(addrReg, 0, 4, self()), counterReg, cursor);
+   cursor = generateMemSrc1Instruction(self(), TR::InstOpCode::stw, node, TR::MemoryReference::createWithDisplacement(self(), addrReg, 0, 4), counterReg, cursor);
    srm.reclaimScratchRegister(addrReg);
    srm.reclaimScratchRegister(counterReg);
    return cursor;
@@ -2266,7 +2254,7 @@ OMR::Power::CodeGenerator::fixedLoadLabelAddressIntoReg(
 
       if (self()->comp()->target().cpu.isAtLeast(OMR_PROCESSOR_PPC_P10))
          {
-         generateTrg1MemInstruction(self(), TR::InstOpCode::paddi, node, trgReg, TR::MemoryReference::withLabel(self(), label, 0, 0));
+         generateTrg1MemInstruction(self(), TR::InstOpCode::paddi, node, trgReg, TR::MemoryReference::createWithLabel(self(), label, 0, 0));
          }
       else
          {
@@ -2280,11 +2268,11 @@ OMR::Power::CodeGenerator::fixedLoadLabelAddressIntoReg(
                {
                TR_ASSERT_FATAL_WITH_NODE(node, 0x00008000 != self()->hiValue(offset), "TOC offset (0x%x) is unexpectedly high. Can not encode upper 16 bits into an addis instruction.", offset);
                generateTrg1Src1ImmInstruction(self(), TR::InstOpCode::addis, node, trgReg, self()->getTOCBaseRegister(), self()->hiValue(offset));
-               generateTrg1MemInstruction(self(),TR::InstOpCode::Op_load, node, trgReg, new (self()->trHeapMemory()) TR::MemoryReference(trgReg, LO_VALUE(offset), 8, self()));
+               generateTrg1MemInstruction(self(),TR::InstOpCode::Op_load, node, trgReg, TR::MemoryReference::createWithDisplacement(self(), trgReg, LO_VALUE(offset), 8));
                }
             else
                {
-               generateTrg1MemInstruction(self(),TR::InstOpCode::Op_load, node, trgReg, new (self()->trHeapMemory()) TR::MemoryReference(self()->getTOCBaseRegister(), offset, 8, self()));
+               generateTrg1MemInstruction(self(),TR::InstOpCode::Op_load, node, trgReg, TR::MemoryReference::createWithDisplacement(self(), self()->getTOCBaseRegister(), offset, 8));
                }
             }
          else
@@ -2403,11 +2391,6 @@ bool OMR::Power::CodeGenerator::is64BitProcessor()
       {
       return self()->comp()->target().cpu.isAtLeast(OMR_PROCESSOR_PPC_64BIT_FIRST);
       }
-   }
-
-bool OMR::Power::CodeGenerator::getSupportsIbyteswap()
-   {
-   return true;
    }
 
 bool
