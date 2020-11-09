@@ -74,7 +74,7 @@ class IDTNode
    uint32_t getNumDescendants();
    uint32_t getNumDescendantsIncludingMe() { return 1 + getNumDescendants(); }
 
-   const char* getName(TR_Memory* mem) { return _callTarget->getSymbol()->getResolvedMethod()->signature(mem); }
+   const char* getName(TR_Memory* mem) { return _symbol->signature(mem); }
 
    TR::IDTNode *getParent() { return _parent; }
 

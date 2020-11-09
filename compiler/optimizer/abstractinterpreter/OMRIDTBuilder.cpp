@@ -141,7 +141,7 @@ void OMR::IDTBuilder::addNodesToIDT(TR::IDTNode*parent, int32_t callerIndex, TR_
    {
    bool traceBIIDTGen = comp()->getOption(TR_TraceBIIDTGen);
 
-   if (callSite == NULL || callSite->_initialCalleeMethod == NULL)
+   if (callSite == NULL )
       {
       if (traceBIIDTGen)
          traceMsg(comp(), "Do not have a callsite. Don't add\n");
@@ -202,7 +202,7 @@ void OMR::IDTBuilder::addNodesToIDT(TR::IDTNode*parent, int32_t callerIndex, TR_
             traceMsg(comp(), "Fail to generate a CFG. Don't add\n");  
          continue;
          }
-         
+      
       if (traceBIIDTGen)
          traceMsg(comp(), "+ IDTBuilder: Adding a child Node: %s for TR::IDTNode: %s\n", calleeMethodSymbol->signature(comp()->trMemory()), parent->getName(comp()->trMemory()));
 
