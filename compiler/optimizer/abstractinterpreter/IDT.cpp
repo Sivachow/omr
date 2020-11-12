@@ -26,7 +26,8 @@ TR::IDT::IDT(TR::Region& region, TR_CallTarget* callTarget, TR::ResolvedMethodSy
       _maxIdx(-1),
       _comp(comp),
       _root(new (_region) IDTNode(getNextGlobalIDTNodeIndex(), callTarget, symbol, -1, 1, NULL, budget)),
-      _indices(NULL)
+      _indices(NULL),
+      _totalCost(0)
    {   
    increaseGlobalIDTNodeIndex();
    }
@@ -150,6 +151,8 @@ void TR::IDT::copyDescendants(TR::IDTNode* fromNode, TR::IDTNode* toNode)
       if (toNode->getBudget() - child->getCost() < 0)
          continue;
          
+      if (toNode->getRootCallRatio() * child->getCallRatio() < 0.75)
+         continue;
 
       TR::IDTNode* copiedChild = toNode->addChild(
                            getNextGlobalIDTNodeIndex(),
@@ -159,13 +162,15 @@ void TR::IDT::copyDescendants(TR::IDTNode* fromNode, TR::IDTNode* toNode)
                            child->getCallRatio(),
                            getRegion()
                            );
+
       if (copiedChild)
-            {
-            increaseGlobalIDTNodeIndex();
-            copiedChild->setInliningMethodSummary(child->getInliningMethodSummary());
-            copiedChild->setStaticBenefit(child->getStaticBenefit());
-            copyDescendants(child, copiedChild);
-            }
+         {
+         addCost(copiedChild->getCost());
+         increaseGlobalIDTNodeIndex();
+         copiedChild->setInliningMethodSummary(child->getInliningMethodSummary());
+         copiedChild->setStaticBenefit(child->getStaticBenefit());
+         copyDescendants(child, copiedChild);
+         }
       }
   
    }

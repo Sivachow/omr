@@ -141,9 +141,7 @@ TR::IDTNode* TR::IDTNode::getChild(uint32_t index)
 
 uint32_t TR::IDTNode::getBenefit()
    {
-   float benefit = _rootCallRatio  * (1 + _staticBenefit);
-
-   return benefit * 10;
+   return _rootCallRatio  * (1 + _staticBenefit) * 10;
    }
 
 TR::IDTNode* TR::IDTNode::findChildWithBytecodeIndex(uint32_t bcIndex)

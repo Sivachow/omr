@@ -63,7 +63,7 @@ void TR::InliningProposal::print(TR::Compilation* comp)
    TR_ASSERT_FATAL(_idt, "Must have an IDT");
 
    char header[1024];
-   sprintf(header,"#Proposal: %d methods inlined into %s", numMethodsToInline, _idt->getRoot()->getName(comp->trMemory()));
+   sprintf(header,"#Proposal: %d methods inlined into %s, cost: %d", numMethodsToInline, _idt->getRoot()->getName(comp->trMemory()), getCost());
 
    if (traceBIProposal)
       traceMsg(comp, "%s\n", header);

@@ -148,12 +148,8 @@ void OMR::IDTBuilder::addNodesToIDT(TR::IDTNode*parent, int32_t callerIndex, TR_
       return;
       }
 
-   if (callRatio * parent->getRootCallRatio() * 100 < 25)
-      {
-      if (traceBIIDTGen)
-         traceMsg(comp(), "Root call ratio < 0.25. Don't add\n");
-      return;
-      }
+   if (traceBIIDTGen)
+      traceMsg(comp(), "+ IDTBuilder: Adding a child Node: %s for TR::IDTNode: %s\n", callSite->signature(comp()->trMemory()), parent->getName(comp()->trMemory()));
 
    callSite->findCallSiteTarget(callStack, getInliner()); //Find all call targets
 
@@ -203,8 +199,7 @@ void OMR::IDTBuilder::addNodesToIDT(TR::IDTNode*parent, int32_t callerIndex, TR_
          continue;
          }
       
-      if (traceBIIDTGen)
-         traceMsg(comp(), "+ IDTBuilder: Adding a child Node: %s for TR::IDTNode: %s\n", calleeMethodSymbol->signature(comp()->trMemory()), parent->getName(comp()->trMemory()));
+    
 
       TR::IDTNode* child = parent->addChild(
                               _idt->getNextGlobalIDTNodeIndex(),
@@ -216,6 +211,7 @@ void OMR::IDTBuilder::addNodesToIDT(TR::IDTNode*parent, int32_t callerIndex, TR_
                               );
       
       _idt->increaseGlobalIDTNodeIndex();
+      _idt->addCost(child->getCost());
 
       if (!comp()->incInlineDepth(calleeMethodSymbol, callSite->_bcInfo, callSite->_cpIndex, NULL, !callSite->isIndirectCall(), 0))
          continue;
@@ -262,9 +258,10 @@ uint32_t OMR::IDTBuilder::computeStaticBenefit(TR::InliningMethodSummary* summar
 
 void TR::IDTBuilderVisitor::visitCallSite(TR_CallSite* callSite, int32_t callerIndex, TR::Block* callBlock, TR::vector<TR::AbsValue*, TR::Region&>* arguments)
    {
-   if (callBlock->getFrequency() < 6 || callBlock->isCold() || callBlock->isSuperCold())
+   float callRatio = (float)callBlock->getFrequency() / (float)_idtNode->getCallTarget()->_cfg->getStart()->asBlock()->getFrequency();
+
+   if (callBlock->getFrequency() < 6 || callRatio * _idtNode->getRootCallRatio() < 0.75 || callBlock->isCold() || callBlock->isSuperCold())
       return;
 
-   float callRatio = (float)callBlock->getFrequency() / (float)_idtNode->getCallTarget()->_cfg->getStart()->asBlock()->getFrequency();
    _idtBuilder->addNodesToIDT(_idtNode, callerIndex, callSite, callRatio, arguments, _callStack);
    }

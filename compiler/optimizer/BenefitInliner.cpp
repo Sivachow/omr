@@ -40,11 +40,15 @@
  */
 int32_t TR::BenefitInlinerWrapper::perform()
    {
-   TR::BenefitInliner inliner(optimizer(), this);
+   TR::ResolvedMethodSymbol * sym = comp()->getMethodSymbol();
 
-   inliner.buildInliningDependencyTree(); // IDT
-   inliner.inlinerPacking(); // nested knapsack
-   inliner.performInlining(comp()->getMethodSymbol());
+   if (sym->mayHaveInlineableCall())
+      {
+      TR::BenefitInliner inliner(optimizer(), this);
+      inliner.buildInliningDependencyTree(); // IDT
+      inliner.inlinerPacking(); // nested knapsack
+      inliner.performInlining(comp()->getMethodSymbol());
+      }
 
    return 1;
    }
@@ -62,6 +66,29 @@ void TR::BenefitInliner::buildInliningDependencyTree()
 
 void TR::BenefitInliner::inlinerPacking()
    {
+   if (_inliningDependencyTree->getTotalCost() <= _budget)
+      {
+      _inliningProposal = new (region()) TR::InliningProposal(region(), _inliningDependencyTree);
+
+      TR::IDTNodeDeque idtNodeQueue(comp()->trMemory()->currentStackRegion());
+      idtNodeQueue.push_back(_inliningDependencyTree->getRoot());
+
+      while (!idtNodeQueue.empty())
+         {
+         TR::IDTNode* currentNode = idtNodeQueue.front();
+         idtNodeQueue.pop_front();
+
+         _inliningProposal->addNode(currentNode);
+
+         for (uint32_t i = 0; i < currentNode->getNumChildren(); i ++)
+            {
+            idtNodeQueue.push_back(currentNode->getChild(i));
+            }
+         }
+
+      return;
+      }
+
    _inliningDependencyTree->flattenIDT();
 
    const int32_t idtSize = _inliningDependencyTree->getNumNodes();
@@ -112,7 +139,7 @@ void TR::BenefitInliner::inlinerPacking()
 
    if (comp()->getOption(TR_TraceBIProposal))
       {
-      traceMsg(comp(), "\n#inliner packing:\n" );
+      traceMsg(comp(), "\n#inliner packing:\n");
       result->print(comp());
       }
    
@@ -146,7 +173,7 @@ bool TR::BenefitInlinerBase::inlineCallTargets(TR::ResolvedMethodSymbol *symbol,
    if (!_nextIDTNodeToInlineInto) 
       return false;
 
-   if (comp()->trace(OMR::inlining))
+   if (comp()->getOption(TR_TraceBIProposal))
       traceMsg(comp(), "#BenefitInliner: inlining into %s\n", _nextIDTNodeToInlineInto->getName(comp()->trMemory()));
 
    TR_CallStack callStack(comp(), symbol, symbol->getResolvedMethod(), prevCallStack, 1500, true);
@@ -155,6 +182,7 @@ bool TR::BenefitInlinerBase::inlineCallTargets(TR::ResolvedMethodSymbol *symbol,
       callStack._innerPrexInfo = info;
 
    bool inlined = inlineIntoIDTNode(symbol, &callStack, _nextIDTNodeToInlineInto);
+
    return inlined;
    }
 

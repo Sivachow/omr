@@ -46,6 +46,9 @@ class IDT
    TR::IDTNode* getRoot() { return _root; };
 
    TR::Region& getRegion() { return _region; }
+
+   void addCost(uint32_t cost) { _totalCost += cost; }
+   uint32_t getTotalCost() { return _totalCost; }
    
    /**
     * @brief Get the total number of nodes in this IDT.
@@ -99,6 +102,7 @@ class IDT
    TR::Compilation *_comp;
    TR::Region&  _region;
    int32_t _maxIdx;
+   uint32_t _totalCost;
    TR::IDTNode* _root;
    TR::IDTNode** _indices;
    };
