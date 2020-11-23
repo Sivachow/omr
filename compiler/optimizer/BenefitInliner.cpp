@@ -26,6 +26,20 @@
 #include <algorithm>
 
 
+static bool isWarm(TR::Compilation *comp)
+   {
+   return comp->getMethodHotness() >= warm;
+   }
+static bool isHot(TR::Compilation *comp)
+   {
+   return comp->getMethodHotness() >= hot;
+   }
+static bool isScorching(TR::Compilation *comp)
+   {
+   return ((comp->getMethodHotness() >= scorching) || ((comp->getMethodHotness() >= veryHot) && comp->isProfilingCompilation())) ;
+   }
+
+
 /**
  * Steps of BenefitInliner:
  * 
@@ -152,20 +166,12 @@ int32_t TR::BenefitInlinerBase::getInliningBudget(TR::ResolvedMethodSymbol* call
    
    int32_t budget;
 
-   if (comp()->getMethodHotness() >= scorching)
-      budget = std::max(1500, size * 2);
-   else if (comp()->getMethodHotness() >= hot)
-      budget = std::max(1500, size + (size >> 2));
-   else if (comp()->getMethodHotness() >= warm && size < 125)
-      budget = 250;
-   else if (comp()->getMethodHotness() >= warm && size < 700)
-      budget = std::max(700, size + (size >> 2));
-   else if (comp()->getMethodHotness() >= warm)
-      budget = size + (size >> 3);
-   else 
-      budget = 25;
-
-   return budget;
+   if (isScorching(comp()))     budget = std::max(1500, size * 2);
+   else if (isHot(comp()))      budget = std::max(1500, size + (size >> 2));
+   else if (size < 125)         budget = 250;
+   else if (size < 700)         budget = std::max(700, size + (size >> 2));
+   else                         budget = size + (size >> 3);
+   return budget ;
    }
 
 bool TR::BenefitInlinerBase::inlineCallTargets(TR::ResolvedMethodSymbol *symbol, TR_CallStack *prevCallStack, TR_InnerPreexistenceInfo *info)
