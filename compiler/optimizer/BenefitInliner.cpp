@@ -165,7 +165,7 @@ int32_t TR::BenefitInlinerBase::getInliningBudget(TR::ResolvedMethodSymbol* call
    else 
       budget = 25;
 
-   return budget;
+   return budget - size;
    }
 
 bool TR::BenefitInlinerBase::inlineCallTargets(TR::ResolvedMethodSymbol *symbol, TR_CallStack *prevCallStack, TR_InnerPreexistenceInfo *info)

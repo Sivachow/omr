@@ -151,7 +151,7 @@ void TR::IDT::copyDescendants(TR::IDTNode* fromNode, TR::IDTNode* toNode)
       if (toNode->getBudget() - child->getCost() < 0)
          continue;
          
-      if (toNode->getRootCallRatio() * child->getCallRatio() < 0.75)
+      if (toNode->getRootCallRatio() * child->getCallRatio() < 0.5)
          continue;
 
       TR::IDTNode* copiedChild = toNode->addChild(
