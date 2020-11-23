@@ -156,7 +156,7 @@ int32_t TR::BenefitInlinerBase::getInliningBudget(TR::ResolvedMethodSymbol* call
       budget = std::max(1500, size * 2);
    else if (comp()->getMethodHotness() >= hot)
       budget = std::max(1500, size + (size >> 2));
-   else if (comp()->getMethodHotness() >= warm && size < 250)
+   else if (comp()->getMethodHotness() >= warm && size < 125)
       budget = 250;
    else if (comp()->getMethodHotness() >= warm && size < 700)
       budget = std::max(700, size + (size >> 2));

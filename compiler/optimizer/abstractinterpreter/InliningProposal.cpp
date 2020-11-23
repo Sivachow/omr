@@ -26,8 +26,8 @@
 #include "infra/BitVector.hpp"
 
 TR::InliningProposal::InliningProposal(TR::Region& region, TR::IDT *idt):
-   _cost(-1),
-   _benefit(-1),
+   _cost(0),
+   _benefit(0),
    _idt(idt),
    _region(region),
    _nodes(NULL) // Lazy Initialization of BitVector
@@ -125,6 +125,9 @@ void TR::InliningProposal::addNode(TR::IDTNode *node)
       }
 
    _nodes->set(index);
+
+   _cost = 0;
+   _benefit = 0;
    }
 
 bool TR::InliningProposal::isEmpty()
@@ -137,7 +140,7 @@ bool TR::InliningProposal::isEmpty()
 
 uint32_t TR::InliningProposal::getCost()
    {
-   if (_cost == -1) 
+   if (_cost == 0) 
       {
       computeCostAndBenefit();
       }
@@ -147,7 +150,7 @@ uint32_t TR::InliningProposal::getCost()
 
 uint32_t TR::InliningProposal::getBenefit()
    {
-   if (_benefit == -1)
+   if (_benefit == 0)
       {
       computeCostAndBenefit();
       }
@@ -207,8 +210,8 @@ void TR::InliningProposal::unionInPlace(TR::InliningProposal *a, TR::InliningPro
    
    *_nodes = *a->_nodes;
    *_nodes |= *b->_nodes;
-   _cost = -1;
-   _benefit = -1;
+   _cost = 0;
+   _benefit = 0;
    }
 
 bool TR::InliningProposal::intersects(TR::InliningProposal* other)
