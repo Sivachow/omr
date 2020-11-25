@@ -260,7 +260,7 @@ void TR::IDTBuilderVisitor::visitCallSite(TR_CallSite* callSite, int32_t callerI
    {
    float callRatio = (float)callBlock->getFrequency() / (float)_idtNode->getCallTarget()->_cfg->getStart()->asBlock()->getFrequency();
 
-   if (callBlock->getFrequency() < 6 || callRatio * _idtNode->getRootCallRatio() < 0.5 || callBlock->isCold() || callBlock->isSuperCold())
+   if (callBlock->getFrequency() < 6 || callRatio * _idtNode->getRootCallRatio() < 0.25 || callBlock->isCold() || callBlock->isSuperCold())
       return;
 
    _idtBuilder->addNodesToIDT(_idtNode, callerIndex, callSite, callRatio, arguments, _callStack);

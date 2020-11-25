@@ -63,8 +63,8 @@ class BenefitInlinerBase : public TR_InlinerBase
 
    bool inlineIntoIDTNode(TR::ResolvedMethodSymbol *symbol, TR_CallStack *callStack, TR::IDTNode *idtNode);
 
-   // virtual bool exceedsSizeThreshold(TR_CallSite *callSite, int bytecodeSize, TR::Block * callNodeBlock, TR_ByteCodeInfo & bcInfo,  int32_t numLocals=0, TR_ResolvedMethod * caller = 0, TR_ResolvedMethod * calleeResolvedMethod = 0, TR::Node * callNode = 0, bool allConsts = false)
-   //    {return false;}
+   virtual bool exceedsSizeThreshold(TR_CallSite *callSite, int bytecodeSize, TR::Block * callNodeBlock, TR_ByteCodeInfo & bcInfo,  int32_t numLocals=0, TR_ResolvedMethod * caller = 0, TR_ResolvedMethod * calleeResolvedMethod = 0, TR::Node * callNode = 0, bool allConsts = false)
+      {return false;}
    virtual bool supportsMultipleTargetInlining() { return false; };
    virtual bool analyzeCallSite(TR_CallStack * callStack, TR::TreeTop * callNodeTreeTop, TR::Node * parent, TR::Node * callNode, TR_CallTarget *calltargetToInline);
 
