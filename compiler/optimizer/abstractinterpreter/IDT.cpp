@@ -75,7 +75,7 @@ void TR::IDT::printTrace()
       if (index != -1) //skip root node
          {
          char line[1024];
-         sprintf(line, "#IDT: #%d: #%d inlinable @%d -> bcsz=%d %s target %s, static benefit = %d, benefit = %d, cost = %d, budget = %d, callratio = %f, rootcallratio = %f", 
+         sprintf(line, "#IDT: #%d: #%d inlinable @%d -> bcsz=%d %s target %s, static benefit = %d, benefit = %ld, cost = %d, budget = %d, callratio = %f, rootcallratio = %f", 
             index,
             currentNode->getParentGloablIndex(),
             currentNode->getByteCodeIndex(),
@@ -151,7 +151,7 @@ void TR::IDT::copyDescendants(TR::IDTNode* fromNode, TR::IDTNode* toNode)
       if (toNode->getBudget() - child->getCost() < 0)
          continue;
          
-      if (toNode->getRootCallRatio() * child->getCallRatio() < 0.25)
+      if (toNode->getRootCallRatio() * child->getCallRatio() < 0.5)
          continue;
 
       TR::IDTNode* copiedChild = toNode->addChild(

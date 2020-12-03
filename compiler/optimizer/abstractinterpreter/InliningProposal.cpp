@@ -83,7 +83,7 @@ void TR::InliningProposal::print(TR::Compilation* comp)
       if (index != -1) //do not print the root node
          { 
          char line[1024];
-         sprintf(line, "#Proposal: #%d : #%d %s @%d -> bcsz=%d %s target %s, benefit = %d, cost = %d, budget = %d",
+         sprintf(line, "#Proposal: #%d : #%d %s @%d -> bcsz=%d %s target %s, benefit = %ld, cost = %d, budget = %d",
             currentNode->getGlobalIndex(),
             currentNode->getParentGloablIndex(),
             _nodes->isSet(index + 1) ? "INLINED" : "NOT inlined",
@@ -148,7 +148,7 @@ uint32_t TR::InliningProposal::getCost()
    return _cost;
    }
 
-uint32_t TR::InliningProposal::getBenefit()
+uint64_t TR::InliningProposal::getBenefit()
    {
    if (_benefit == 0)
       {

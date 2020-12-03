@@ -81,7 +81,7 @@ class IDTNode
    int32_t getGlobalIndex() { return _idx; }
    int32_t getParentGloablIndex()  { return isRoot() ? -2 : getParent()->getGlobalIndex(); }
 
-   uint32_t getBenefit();
+   uint64_t getBenefit();
 
    uint32_t getStaticBenefit() { return _staticBenefit; };
 
@@ -109,7 +109,7 @@ class IDTNode
    uint32_t getByteCodeSize() { return _callTarget->_calleeMethod->maxBytecodeIndex(); }
 
    float getCallRatio() { return _callRatio; }
-   float getRootCallRatio() { return _rootCallRatio; }
+   double getRootCallRatio() { return _rootCallRatio; }
 
    private:
    TR_CallTarget* _callTarget;
@@ -126,7 +126,7 @@ class IDTNode
    int32_t _budget;
 
    float _callRatio;
-   float _rootCallRatio;
+   double _rootCallRatio;
 
    TR::InliningMethodSummary *_inliningMethodSummary;
    

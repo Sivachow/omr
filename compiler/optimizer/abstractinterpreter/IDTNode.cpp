@@ -139,7 +139,7 @@ TR::IDTNode* TR::IDTNode::getChild(uint32_t index)
    return _children->at(index);
    }
 
-uint32_t TR::IDTNode::getBenefit()
+uint64_t TR::IDTNode::getBenefit()
    {
    return _rootCallRatio  * (1 + _staticBenefit) * 10;
    }

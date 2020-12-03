@@ -44,7 +44,7 @@ class InliningProposal
    bool isEmpty();
 
    uint32_t getCost();
-   uint32_t getBenefit();
+   uint64_t getBenefit();
 
    /**
     * @brief add an IDTNode selected to be inlined to the proposal
@@ -87,7 +87,7 @@ class InliningProposal
    TR::Region& _region;
    TR_BitVector *_nodes;
    uint32_t _cost;
-   uint32_t _benefit;
+   uint64_t _benefit;
    TR::IDT *_idt;
 };
 
