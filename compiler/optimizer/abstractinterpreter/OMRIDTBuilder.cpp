@@ -199,14 +199,15 @@ void OMR::IDTBuilder::addNodesToIDT(TR::IDTNode*parent, int32_t callerIndex, TR_
          continue;
          }
       
-    
+      if (parent->getRootCallRatio() * callRatio * callTarget->_frequencyAdjustment < 0.25)
+         continue;
 
       TR::IDTNode* child = parent->addChild(
                               _idt->getNextGlobalIDTNodeIndex(),
                               callTarget,
                               calleeMethodSymbol,
                               callSite->_byteCodeIndex,
-                              callRatio,
+                              callRatio * callTarget->_frequencyAdjustment,
                               _idt->getRegion()
                               );
 
@@ -260,7 +261,7 @@ void TR::IDTBuilderVisitor::visitCallSite(TR_CallSite* callSite, int32_t callerI
    {
    float callRatio = (float)callBlock->getFrequency() / (float)_idtNode->getCallTarget()->_cfg->getStart()->asBlock()->getFrequency();
 
-   if (callBlock->getFrequency() < 6 || callRatio * _idtNode->getRootCallRatio() < 0.5 || callBlock->isCold() || callBlock->isSuperCold())
+   if (callBlock->getFrequency() < 6 || callBlock->isCold() || callBlock->isSuperCold())
       return;
 
    _idtBuilder->addNodesToIDT(_idtNode, callerIndex, callSite, callRatio, arguments, _callStack);
