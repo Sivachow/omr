@@ -162,16 +162,16 @@ void TR::BenefitInliner::inlinerPacking()
 
 int32_t TR::BenefitInlinerBase::getInliningBudget(TR::ResolvedMethodSymbol* callerSymbol)
    {
-   const int32_t size = getPolicy()->getInitialBytecodeSize(callerSymbol, comp());
+   const int32_t size = callerSymbol->getResolvedMethod()->maxBytecodeIndex();
    
-   int32_t budget;
+   int32_t callerWeightLimit;
 
-   if (isScorching(comp()))     budget = std::max(1500, size * 2);
-   else if (isHot(comp()))      budget = std::max(1500, size + (size >> 2));
-   else if (size < 125)         budget = 250;
-   else if (size < 700)         budget = std::max(700, size + (size >> 2));
-   else                         budget = size + (size >> 3);
-   return budget - size;
+   if (isScorching(comp()))     callerWeightLimit = std::max(1500, size * 2);
+   else if (isHot(comp()))      callerWeightLimit = std::max(1500, size + (size >> 2));
+   else if (size < 125)         callerWeightLimit = 250;
+   else if (size < 700)         callerWeightLimit = std::max(700, size + (size >> 2));
+   else                         callerWeightLimit = size + (size >> 3);
+   return callerWeightLimit - size;
    }
 
 bool TR::BenefitInlinerBase::inlineCallTargets(TR::ResolvedMethodSymbol *symbol, TR_CallStack *prevCallStack, TR_InnerPreexistenceInfo *info)
