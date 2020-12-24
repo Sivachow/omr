@@ -22,6 +22,10 @@
 #include "optimizer/abstractinterpreter/IDTBuilder.hpp"
 #include "optimizer/abstractinterpreter/IDT.hpp"
 #include "il/Block.hpp"
+#include "control/RecompilationInfo.hpp"
+#include "env/j9method.h"
+
+#define COLD_ROOT_CALL_RATIO 0.5
 
 OMR::IDTBuilder::IDTBuilder(TR::ResolvedMethodSymbol* symbol, int32_t budget, TR::Region& region, TR::Compilation* comp, TR_InlinerBase* inliner) :
       _rootSymbol(symbol),
@@ -114,7 +118,7 @@ void OMR::IDTBuilder::buildIDT2(TR::IDTNode* node, TR::vector<TR::AbsValue*, TR:
 
       // Same methods should have same IDT decendents.
       // IDT is built in DFS order, at this point, we have all the descendants so it is safe to copy all the descendants.
-      _idt->copyDescendants(interpretedMethodIDTNode, node); 
+      copyDescendants(interpretedMethodIDTNode, node); 
       return;
       }
    else
@@ -137,6 +141,43 @@ void OMR::IDTBuilder::buildIDT2(TR::IDTNode* node, TR::vector<TR::AbsValue*, TR:
       }
    }
 
+void OMR::IDTBuilder::copyDescendants(TR::IDTNode* fromNode, TR::IDTNode* toNode)
+   {
+   TR_ASSERT_FATAL(
+      fromNode->getResolvedMethodSymbol()->getResolvedMethod()->getPersistentIdentifier() 
+      == toNode->getResolvedMethodSymbol()->getResolvedMethod()->getPersistentIdentifier(), 
+      "Copying different nodes is not allowed!");
+
+   for (int32_t i = 0 ; i < fromNode->getNumChildren(); i ++)
+      {
+      TR::IDTNode* child = fromNode->getChild(i);
+
+      if (toNode->getBudget() - child->getCost() < 0)
+         continue;
+         
+      if (toNode->getRootCallRatio() * child->getCallRatio() < COLD_ROOT_CALL_RATIO)
+         continue;
+
+      TR::IDTNode* copiedChild = toNode->addChild(
+                           _idt->getNextGlobalIDTNodeIndex(),
+                           child->getCallTarget(),
+                           child->getResolvedMethodSymbol(),
+                           child->getByteCodeIndex(),
+                           child->getCallRatio(),
+                           _idt->getRegion()
+                           );
+
+      if (copiedChild)
+         {
+         _idt->addCost(copiedChild->getCost());
+         _idt->increaseGlobalIDTNodeIndex();
+         copiedChild->setInliningMethodSummary(child->getInliningMethodSummary());
+         copiedChild->setStaticBenefit(child->getStaticBenefit());
+         copyDescendants(child, copiedChild);
+         }
+      }
+   }
+
 void OMR::IDTBuilder::addNodesToIDT(TR::IDTNode*parent, int32_t callerIndex, TR_CallSite* callSite, float callRatio, TR::vector<TR::AbsValue*, TR::Region&>* arguments, TR_CallStack* callStack)
    {
    bool traceBIIDTGen = comp()->getOption(TR_TraceBIIDTGen);
@@ -150,6 +191,9 @@ void OMR::IDTBuilder::addNodesToIDT(TR::IDTNode*parent, int32_t callerIndex, TR_
 
    if (traceBIIDTGen)
       traceMsg(comp(), "+ IDTBuilder: Adding a child Node: %s for TR::IDTNode: %s\n", callSite->signature(comp()->trMemory()), parent->getName(comp()->trMemory()));
+
+   // if (comp()->fej9()->maybeHighlyPolymorphic(comp(), callSite->_callerResolvedMethod, callSite->_cpIndex, callSite->_interfaceMethod, callSite->_receiverClass) && callSite->isInterface())
+   //    return;
 
    callSite->findCallSiteTarget(callStack, getInliner()); //Find all call targets
 
@@ -185,6 +229,14 @@ void OMR::IDTBuilder::addNodesToIDT(TR::IDTNode*parent, int32_t callerIndex, TR_
             traceMsg(comp(), "Recursive call. Don't add\n");  
          continue;
          }
+
+      // hot and scorching bodies should never be inlined to warm or cooler bodies
+      if (!callTarget->_calleeMethod->isInterpreted())
+         {
+         TR_PersistentJittedBodyInfo * bodyInfo = ((TR_ResolvedJ9Method*) callTarget->_calleeMethod)->getExistingJittedBodyInfo();
+         if (bodyInfo && comp()->getMethodHotness() <= warm && bodyInfo->getHotness() >= hot)
+            continue;
+         }
          
       // The actual symbol for the callTarget->_calleeMethod.
       TR::ResolvedMethodSymbol* calleeMethodSymbol = TR::ResolvedMethodSymbol::create(comp()->trHeapMemory(), callTarget->_calleeMethod, comp());
@@ -198,8 +250,8 @@ void OMR::IDTBuilder::addNodesToIDT(TR::IDTNode*parent, int32_t callerIndex, TR_
             traceMsg(comp(), "Fail to generate a CFG. Don't add\n");  
          continue;
          }
-      
-      if (parent->getRootCallRatio() * callRatio * callTarget->_frequencyAdjustment < 0.25)
+
+      if (parent->getRootCallRatio() * callRatio * callTarget->_frequencyAdjustment < COLD_ROOT_CALL_RATIO)
          continue;
 
       TR::IDTNode* child = parent->addChild(

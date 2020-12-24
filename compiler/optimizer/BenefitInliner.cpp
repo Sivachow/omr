@@ -171,7 +171,7 @@ int32_t TR::BenefitInlinerBase::getInliningBudget(TR::ResolvedMethodSymbol* call
    else if (size < 125)         callerWeightLimit = 250;
    else if (size < 700)         callerWeightLimit = std::max(700, size + (size >> 2));
    else                         callerWeightLimit = size + (size >> 3);
-   return callerWeightLimit - size;
+   return callerWeightLimit - size; //max size we can inline
    }
 
 bool TR::BenefitInlinerBase::inlineCallTargets(TR::ResolvedMethodSymbol *symbol, TR_CallStack *prevCallStack, TR_InnerPreexistenceInfo *info)

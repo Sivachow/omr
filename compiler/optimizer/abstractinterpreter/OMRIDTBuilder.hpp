@@ -123,6 +123,7 @@ class IDTBuilder
    void storeInterpretedMethod(TR_ResolvedMethod* method, TR::IDTNode* node);
    
    uint32_t computeStaticBenefit(TR::InliningMethodSummary* summary, TR::vector<TR::AbsValue*, TR::Region&>* arguments);
+   void copyDescendants(TR::IDTNode* fromNode, TR::IDTNode* toNode);
    
    TR::IDT* _idt;
    TR::ResolvedMethodSymbol* _rootSymbol;
