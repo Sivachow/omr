@@ -123,7 +123,7 @@ bool TR::PotentialOptimizationVPPredicate::holdPartialOrderRelation(TR::VPConstr
    else if (testConstraint->asClassType()) // testing for checkcast
       {
        if (valueConstraint->getClassType()->asResolvedClass())
-          return testConstraint->getClass() == valueConstraint->getClass();
+          return VPConstraint::isKindSubset(testConstraint->getClass(), valueConstraint->getClass());
        else
           return false;
       }
